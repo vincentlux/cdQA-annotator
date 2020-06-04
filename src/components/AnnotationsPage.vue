@@ -27,7 +27,7 @@
                 :variant="'primary'"
                 v-on:click="delete_empty_document()"
                 v-download-data="valid_json"
-                v-download-data:type="'json'"
+                v-download-data:type="'application/json'"
                 v-download-data:filename="'cdqa-v1.1.json'"
               >Download</b-button>
             </b-nav-item>
@@ -181,11 +181,9 @@ export default {
   },
   computed: {
     valid_json: function() {
-      var json = JSON.stringify(this.json).replace(/[\u007F-\uFFFF]/g, function(
-        chr
-      ) {
-        return "\\u" + ("0000" + chr.charCodeAt(0).toString(16)).substr(-4);
-      });
+      var json = JSON.stringify(this.json)
+      console.log(json);
+      
       return json;
     },
     autocomplete: function() {
