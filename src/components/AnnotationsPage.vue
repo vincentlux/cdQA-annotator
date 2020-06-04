@@ -25,10 +25,7 @@
               <b-button
                 :size="'sm'"
                 :variant="'primary'"
-                v-on:click="delete_empty_document()"
-                v-download-data="valid_json"
-                v-download-data:type="'application/json'"
-                v-download-data:filename="'cdqa-v1.1.json'"
+                v-on:click="save_json()"
               >Download</b-button>
             </b-nav-item>
           </b-navbar-nav>
@@ -75,13 +72,27 @@
       </b-table>
       <br>
 
-      <div v-if="data_number > 1 && context_number == 1">
+      <div v-if="data_number == 1 && context_number == 1 && json.data[data_number - 1].paragraphs.length != 1">
+        <b-button :size="''" :variant="'outline-primary'" v-on:click="context_number += 1">Next</b-button>
+      </div>
+      <div v-else-if="data_number == 1 && context_number == 1">
+        <b-button :size="''" :variant="'outline-primary'" v-on:click="data_number+=1, context_number = 1">Next</b-button>
+      </div>
+      <div v-else-if="data_number > 1 && context_number == 1 && json.data[data_number - 1].paragraphs.length != 1">
         <b-button
           :size="''"
           :variant="'outline-secondary'"
           v-on:click="data_number -= 1, context_number = json.data[data_number - 1].paragraphs.length"
         >Previous</b-button> or 
         <b-button :size="''" :variant="'outline-primary'" v-on:click="context_number += 1">Next</b-button>
+      </div>
+      <div v-else-if="data_number > 1 && context_number == 1">
+        <b-button
+          :size="''"
+          :variant="'outline-secondary'"
+          v-on:click="data_number -= 1, context_number = json.data[data_number - 1].paragraphs.length"
+        >Previous</b-button> or 
+        <b-button :size="''" :variant="'outline-primary'" v-on:click="data_number+=1, context_number = 1">Next</b-button>
       </div>
       <div v-else-if="context_number < json.data[data_number - 1].paragraphs.length">
         <b-button
@@ -118,17 +129,14 @@
       <b-button
         :size="''"
         :variant="'primary'"
-        v-on:click="delete_empty_document()"
-        v-download-data="valid_json"
-        v-download-data:type="'json'"
-        v-download-data:filename="'cdqa-v1.1.json'"
+        v-on:click="save_json()"
       >Download</b-button>
     </div>
   </div>
 </template>
 
 <script>
-
+import FileSaver from 'file-saver';
 const uuidv4 = require('uuid/v4');
 
 export default {
@@ -177,12 +185,17 @@ export default {
           this.json.data.splice(i, 1);
         }
       }
+    },
+    save_json: function() {
+      this.delete_empty_document();
+      const data = JSON.stringify(this.json);
+      const blob = new Blob([data], {type: ''});
+      FileSaver.saveAs(blob, 'annotated.json');
     }
   },
   computed: {
     valid_json: function() {
       var json = JSON.stringify(this.json)
-      console.log(json);
       
       return json;
     },
@@ -205,6 +218,7 @@ export default {
         };
         items.push(item);
       }
+      console.log(this.context_number);
       return items;
     },
     paragraph_context: function() {
