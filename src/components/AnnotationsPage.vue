@@ -178,6 +178,7 @@ export default {
     delete_paragraph: function() {
       var paragraph_container = this.json.data[this.data_number - 1].paragraphs;
       paragraph_container.splice([this.context_number - 1], 1);
+      this.delete_empty_document();
     },
     delete_empty_document: function() {
       for (var i in this.json.data) {
